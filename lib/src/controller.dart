@@ -235,6 +235,9 @@ class MapboxMapController extends ChangeNotifier {
   bool get isCameraMoving => _isCameraMoving;
   bool _isCameraMoving = false;
 
+  /// False until dispose() is called.
+  bool _isDisposed = false;
+
   /// Returns the most recent camera position reported by the platform side.
   /// Will be null, if [MapboxMap.trackCameraPosition] is false.
   CameraPosition? get cameraPosition => _cameraPosition;
@@ -248,6 +251,20 @@ class MapboxMapController extends ChangeNotifier {
       Set<Factory<OneSequenceGestureRecognizer>> gestureRecognizers) {
     return MapboxGlPlatform.getInstance(_id)
         .buildView(creationParams, onPlatformViewCreated, gestureRecognizers);
+  }
+
+  /// Version of notifyListeners() that aborts if the controller has already
+  /// been disposed of.
+  @override
+  void notifyListeners() {
+    if (_isDisposed) return;
+    super.notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
   }
 
   /// Updates configuration options of the map user interface.
